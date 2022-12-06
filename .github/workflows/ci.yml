@@ -15,9 +15,9 @@ jobs:
     steps:
       - name: Set running flag
         run: echo "RUNNING=1" >> $GITHUB_ENV
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: technote-space/get-git-comment-action@v1
-      - uses: technote-space/get-diff-action@v5
+      - uses: technote-space/get-diff-action@v6
         with:
           PATTERNS: +(src|__tests__)/**/*.+(js|ts)
           FILES: |
@@ -28,9 +28,9 @@ jobs:
         run: echo "RUNNING=" >> $GITHUB_ENV
         if: "! env.GIT_DIFF"
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           cache: yarn
         if: env.RUNNING
       - name: Install Package dependencies
@@ -50,18 +50,19 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-latest, ubuntu-20.04, macos-latest]
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-latest, macos-latest]
     steps:
       - name: Set running flag
         run: echo "RUNNING=1" >> $GITHUB_ENV
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: technote-space/get-git-comment-action@v1
-      - uses: technote-space/get-diff-action@v5
+      - uses: technote-space/get-diff-action@v6
         with:
           PATTERNS: +(src|__tests__)/**/*.+(js|ts|snap)
           FILES: |
             yarn.lock
             jest.config.js
+            vite.config.ts
         if: "! contains(env.COMMIT_MESSAGE, '[skip ci]') && ! contains(env.COMMIT_MESSAGE, '[ci skip]')"
       - name: Set running flag
         run: echo "RUNNING=" >> $GITHUB_ENV
@@ -81,9 +82,9 @@ jobs:
             echo "RUNNING=" >> $GITHUB_ENV
           fi
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           cache: yarn
         if: env.RUNNING
       - name: Install Package dependencies
@@ -109,10 +110,10 @@ jobs:
     timeout-minutes: 5
     if: startsWith(github.ref, 'refs/tags/')
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           cache: yarn
 
       - uses: technote-space/load-config-action@v1
@@ -120,7 +121,7 @@ jobs:
           CONFIG_FILENAME: workflow-settings.json, workflow-details.json
           IGNORE_WARNING: 'true'
       - name: Release GitHub Actions
-        uses: technote-space/release-github-actions@v7
+        uses: technote-space/release-github-actions@v8
         with:
           OUTPUT_BUILD_INFO_FILENAME: build.json
           TEST_TAG_PREFIX: test/
@@ -147,7 +148,7 @@ jobs:
           fi
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         if: env.RUNNING
       - name: Check package version
         uses: technote-space/package-version-check-action@v1
@@ -169,16 +170,16 @@ jobs:
         if: env.RUNNING && matrix.target == 'gpr'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           registry-url: https://registry.npmjs.org/
           cache: yarn
         if: env.RUNNING && matrix.target == 'npm'
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
           registry-url: https://npm.pkg.github.com
           cache: yarn
         if: env.RUNNING && matrix.target == 'gpr'
@@ -235,7 +236,7 @@ jobs:
     timeout-minutes: 3
     if: always()
     steps:
-      - uses: technote-space/workflow-conclusion-action@v2
+      - uses: technote-space/workflow-conclusion-action@v3
       - uses: 8398a7/action-slack@v3
         with:
           status: failure
